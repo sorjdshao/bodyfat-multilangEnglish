@@ -89,12 +89,14 @@ function switchLanguage(lang) {
 </script>
 
 </head>
-<body>
   
-  <select id="langSwitcher" onchange="switchLanguage(this.value)">
-    <option value="ja">language 日本語/japanese</option>
-    <option value="en">language English</option>
-  </select>
+<body>
+  <div class="container">
+    <label for="language"><strong>Language / 言語:</strong></label>
+    <select id="language" onchange="changeLanguage()">
+      <option value="ja">日本語</option>
+      <option value="en">English</option>
+    </select><br><br>
 
   <h1>体脂肪率・除脂肪体重計算機</h1>
 
