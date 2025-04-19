@@ -45,7 +45,17 @@ const texts = {
       hip: "臀囲（cm）",
       showResult: "3. 結果を表示"
     },
-    sexes: { male: "男性", female: "女性" }
+    sexes: { male: "男性", female: "女性" },
+    results: {
+      bfp: "体脂肪率",
+      fat: "脂肪量",
+      lbm: "除脂肪体重（LBM）",
+      bmi: "BMI",
+      ffmi: "FFMI",
+      diff: "目標との差"
+    },
+    alert: "体重と身長を正しく入力してください",
+    alert_bfp: "体脂肪率を入力してください"
   },
   en: {
     title: "Body Fat & Lean Mass Calculator",
@@ -66,53 +76,36 @@ const texts = {
       hip: "Hip (cm)",
       showResult: "3. Show Results"
     },
-    sexes: { male: "Male", female: "Female" }
+    sexes: { male: "Male", female: "Female" },
+    results: {
+      bfp: "Body Fat",
+      fat: "Fat Mass",
+      lbm: "Lean Body Mass (LBM)",
+      bmi: "BMI",
+      ffmi: "FFMI",
+      diff: "Difference from Target"
+    },
+    alert: "Please enter valid height and weight",
+    alert_bfp: "Please enter body fat percentage"
   }
 };
 
 let currentLang = "ja";
 
-function switchLanguage(lang) {
-  currentLang = lang;
-  document.documentElement.lang = lang;
-  document.querySelector("h1").textContent = texts[lang].title;
-  document.querySelector("label").textContent = texts[lang].methodLabel;
+function changeLanguage() {
+  currentLang = document.getElementById("language").value;
+  document.documentElement.lang = currentLang;
+  document.querySelector("h1").textContent = texts[currentLang].title;
+  document.querySelector("label[for='method']").textContent = texts[currentLang].methodLabel;
 
+  const opts = texts[currentLang].options;
   const methodSelect = document.getElementById("method");
-  const opts = texts[lang].options;
   methodSelect.options[0].text = opts.simple;
   methodSelect.options[1].text = opts.ymca;
   methodSelect.options[2].text = opts.navy;
 
   renderForm();
 }
-</script>
-
-</head>
-  
-<body>
-  <div class="container">
-    <label for="language"><strong>Language / 言語:</strong></label>
-    <select id="language" onchange="changeLanguage()">
-      <option value="ja">日本語</option>
-      <option value="en">English</option>
-    </select><br><br>
-
-  <h1>体脂肪率・除脂肪体重計算機</h1>
-
-  <div class="section">
-    <label>1. 計算方法を選択：</label>
-    <select id="method" onchange="renderForm()">
-      <option value="simple">手入力（体脂肪率を知っている場合）</option>
-      <option value="ymca">YMCA方式（体重と腹囲）</option>
-      <option value="navy">海軍方式（首囲・腹囲・身長など）</option>
-    </select>
-
-    <div id="formArea" style="margin-top: 20px;"></div>
-    <div class="result" id="resultArea" style="display:none;"></div>
-  </div>
-
-<script>
 
 function renderForm() {
   const method = document.getElementById("method").value;
@@ -156,7 +149,6 @@ function renderForm() {
   }
 }
 
-
 function toggleHipInput() {
   const sex = document.getElementById("sex").value;
   document.getElementById("hipField").style.display = (sex === "female") ? "block" : "none";
@@ -165,19 +157,20 @@ function toggleHipInput() {
 function calculate() {
   const method = document.getElementById("method").value;
   const result = document.getElementById("resultArea");
+  const L = texts[currentLang].results;
   const height = parseFloat(document.getElementById("height").value);
   const weight = parseFloat(document.getElementById("weight").value);
   const targetBfp = parseFloat(document.getElementById("targetBfp").value);
   let bfp = 0;
 
   if (isNaN(weight) || weight <= 0 || isNaN(height) || height <= 0) {
-    alert("体重と身長を正しく入力してください");
+    alert(texts[currentLang].alert);
     return;
   }
 
   if (method === "simple") {
     bfp = parseFloat(document.getElementById("bfp").value);
-    if (isNaN(bfp)) { alert("体脂肪率を入力してください"); return; }
+    if (isNaN(bfp)) { alert(texts[currentLang].alert_bfp); return; }
   } else if (method === "ymca") {
     const sex = document.getElementById("sex").value;
     const waist = parseFloat(document.getElementById("waist").value);
@@ -204,17 +197,44 @@ function calculate() {
   const diffToTarget = isNaN(targetBfp) ? null : bfp - targetBfp;
 
   result.innerHTML = `
-    <p><strong>体脂肪率：</strong>${bfp.toFixed(1)}%</p>
-    <p><strong>脂肪量：</strong>${fatMass.toFixed(1)} kg</p>
-    <p><strong>除脂肪体重（LBM）：</strong>${lbm.toFixed(1)} kg</p>
-    <p><strong>BMI：</strong>${bmi.toFixed(1)}</p>
-    <p><strong>FFMI：</strong>${ffmi.toFixed(1)}</p>
-    ${diffToTarget !== null ? `<p><strong>目標との差：</strong>${diffToTarget.toFixed(1)} %</p>` : ""}
+    <p><strong>${L.bfp}:</strong> ${bfp.toFixed(1)}%</p>
+    <p><strong>${L.fat}:</strong> ${fatMass.toFixed(1)} kg</p>
+    <p><strong>${L.lbm}:</strong> ${lbm.toFixed(1)} kg</p>
+    <p><strong>${L.bmi}:</strong> ${bmi.toFixed(1)}</p>
+    <p><strong>${L.ffmi}:</strong> ${ffmi.toFixed(1)}</p>
+    ${diffToTarget !== null ? `<p><strong>${L.diff}:</strong> ${diffToTarget.toFixed(1)}%</p>` : ""}
   `;
   result.style.display = "block";
 }
+</script>
+</head>
+<body>
+  <div class="container">
+    <label for="language"><strong>Language / 言語:</strong></label>
+    <select id="language" onchange="changeLanguage()">
+      <option value="ja">日本語</option>
+      <option value="en">English</option>
+    </select><br><br>
 
-window.onload = renderForm;
+    <h1>体脂肪率・除脂肪体重計算機</h1>
+
+    <div class="section">
+      <label for="method">1. 計算方法を選択：</label>
+      <select id="method" onchange="renderForm()">
+        <option value="simple">手入力（体脂肪率を知っている場合）</option>
+        <option value="ymca">YMCA方式（体重と腹囲）</option>
+        <option value="navy">海軍方式（首囲・腹囲・身長など）</option>
+      </select>
+
+      <div id="formArea" style="margin-top: 20px;"></div>
+      <div class="result" id="resultArea" style="display:none;"></div>
+    </div>
+  </div>
+
+<script>
+window.onload = function() {
+  changeLanguage();
+};
 </script>
 </body>
 </html>
